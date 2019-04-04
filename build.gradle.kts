@@ -12,6 +12,7 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
     compile("io.javalin", "javalin", "2.8.0")
+    compile("org.slf4j", "slf4j-simple", "1.7.26")
 }
 
 application {
