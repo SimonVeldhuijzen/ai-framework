@@ -3,8 +3,6 @@ package ai.framework.game
 import ai.framework.core.logger
 import ai.framework.entity.MoveResponse
 import ai.framework.entity.Player
-import ai.framework.entity.SlowPlayer
-import jdk.nashorn.internal.runtime.options.LoggingOption
 import java.util.*
 
 class BoterKaasEierenBoard(val players: List<Player>): Board(listOf("row", "column")) {

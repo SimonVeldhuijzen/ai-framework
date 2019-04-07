@@ -3,10 +3,8 @@ package ai.framework.game
 import ai.framework.core.logger
 import ai.framework.entity.MoveRequest
 import ai.framework.entity.MoveResponse
-import ai.framework.entity.Player
-import ai.framework.game.constant.GameState
+import ai.framework.constant.GameState
 import kotlinx.coroutines.*
-import sun.misc.Request
 
 class Game(val board: Board) {
     companion object {
@@ -19,19 +17,19 @@ class Game(val board: Board) {
         status = GameState.INITIALIZED
 
         while (!board.finished) {
-            logger.info("Generating request for ${board.playerToMove().name()}")
+            logger.info("Generating request for ${board.playerToMove().user.name}")
             val request = board.generateRequest()
 
             status = GameState.WAITING_FOR_PLAYER
-            logger.info("Asking for move for ${board.playerToMove().name()}")
+            logger.info("Asking for move for ${board.playerToMove().user.name}")
             val move = runBlocking { move(request, msPerMove) }
 
             status = GameState.CALCULATING
             if (move == null) {
-                logger.info("Making random move for ${board.playerToMove().name()}")
+                logger.info("Making random move for ${board.playerToMove().user.name}")
                 board.randomMove()
             } else {
-                logger.info("Making move for ${board.playerToMove().name()}")
+                logger.info("Making move for ${board.playerToMove().user.name}")
                 board.move(move)
             }
         }

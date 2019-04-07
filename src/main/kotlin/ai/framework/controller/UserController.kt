@@ -1,7 +1,9 @@
 package ai.framework.controller
 
+import ai.framework.constant.MessageType
 import ai.framework.core.logger
 import ai.framework.entity.User
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.javalin.websocket.WsSession
 import java.util.concurrent.ConcurrentHashMap
 
@@ -13,9 +15,9 @@ class UserController {
 
     fun create(session: WsSession) {
         val userName = session.pathParam("name")
-        val user = User(userName)
+        val user = User(session, userName)
         users[session] = user
-        send("ok", session)
+        send("ok", session, MessageType.CONFIRMATION)
         logger.info("Created a new user with name '$userName'")
     }
 
@@ -27,13 +29,21 @@ class UserController {
         }
     }
 
-    fun send(message: String, session: WsSession) {
+    fun send(message: Any, session: WsSession, type: MessageType) {
         logger.info("Sending message to user '${users[session]?.name}'")
-        session.send(message)
+        if (message is String) {
+            session.send(message)
+            return
+        }
+
+        val json = type.value + "|" + ObjectMapper().writeValueAsString(message)
+        session.send(json)
     }
 
     fun receive(message: String, session: WsSession) {
         logger.info("Received message from user '${users[session]?.name}'")
-        send("received $message", session)
+
+
+
     }
 }
