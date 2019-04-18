@@ -1,40 +1,75 @@
 package ai.framework
 
-import ai.framework.controller.UserController
+import ai.framework.client.controller.PlayerController
+import ai.framework.server.controller.server.TournamentController
+import ai.framework.server.controller.server.UserController
+import ai.framework.core.test.TestServer
 import io.javalin.Javalin
+import io.javalin.apibuilder.ApiBuilder.crud
 
 private val userController = UserController()
+private val tournamentController = TournamentController()
+private val playerController = PlayerController()
 
-fun main() {
-    val javalin = Javalin.create()
+fun main(args: Array<String>) {
+    if (args.size != 1) {
+        return
+    }
 
-    generalSettings(javalin)
-    addUserRegistration(javalin)
+    if (args[0] == "server") {
+        val javalin = Javalin.create()
 
-    javalin.start()
+        generalSettings(javalin, 8080)
+        addRestServerApis(javalin)
+
+        javalin.start()
+    } else if (args[0] == "testserver") {
+        val tester = TestServer()
+        tester.test()
+    } else if (args[0] == "client") {
+        val javalin = Javalin.create()
+
+        generalSettings(javalin, 8081)
+        addRestClientApis(javalin)
+
+        javalin.start()
+    }
 }
 
-private fun generalSettings(javalin: Javalin) {
+private fun generalSettings(javalin: Javalin, port: Int) {
     javalin.apply {
-        port(8443)
-        get("ping") {ctx ->
+        port(port)
+        get("ping") { ctx ->
             ctx.result("pong")
         }
     }
 }
 
-private fun addUserRegistration(javalin: Javalin) {
+private fun addRestServerApis(javalin: Javalin) {
     javalin.apply {
-        ws("/register/:name") { ws ->
-            ws.onConnect { session ->
-                userController.create(session)
-            }
-            ws.onClose { session, _, _ ->
-                userController.delete(session)
-            }
-            ws.onMessage { session, message ->
-                userController.receive(message, session)
-            }
+        routes {
+            crud("tournaments/:name", tournamentController)
+            crud("users/:name", userController)
+        }
+
+        post("tournaments/:name/start") { ctx ->
+            tournamentController.start(ctx)
+        }
+
+        post("tournaments/:name/join/:username") { ctx ->
+            tournamentController.addUser(ctx)
+        }
+
+        delete("tournaments/:name/leave/:username") { ctx ->
+            tournamentController.removeUser(ctx)
+        }
+    }
+}
+
+private fun addRestClientApis(javalin: Javalin) {
+    javalin.apply {
+        get("move?player=:uuid&timeout=:timeout") {ctx ->
+            playerController.move(ctx)
         }
     }
 }

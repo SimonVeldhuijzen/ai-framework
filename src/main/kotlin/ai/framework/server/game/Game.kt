@@ -1,9 +1,10 @@
-package ai.framework.game
+package ai.framework.server.game
 
-import ai.framework.core.logger
+import ai.framework.core.helper.logger
 import ai.framework.entity.MoveRequest
 import ai.framework.entity.MoveResponse
-import ai.framework.constant.GameState
+import ai.framework.core.constant.GameState
+import ai.framework.core.board.Board
 import kotlinx.coroutines.*
 
 class Game(val board: Board) {
@@ -13,7 +14,7 @@ class Game(val board: Board) {
 
     var status: GameState = GameState.NOT_INITIALIZED; private set
 
-    fun start(msPerMove: Long) {
+    fun play(msPerMove: Long) {
         status = GameState.INITIALIZED
 
         while (!board.finished) {
@@ -41,7 +42,7 @@ class Game(val board: Board) {
         var move: MoveResponse? = null
 
         val job = GlobalScope.launch {
-            move = request.player.makeMove(request)
+            move = request.player.makeMove(request, msPerMove)
         }
 
         val waitTill = System.currentTimeMillis() + msPerMove

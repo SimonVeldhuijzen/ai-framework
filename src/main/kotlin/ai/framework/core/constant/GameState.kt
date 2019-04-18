@@ -1,4 +1,4 @@
-package ai.framework.constant
+package ai.framework.core.constant
 
 enum class GameState {
     NOT_INITIALIZED,

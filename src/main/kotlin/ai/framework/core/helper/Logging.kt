@@ -1,4 +1,4 @@
-package ai.framework.core
+package ai.framework.core.helper
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

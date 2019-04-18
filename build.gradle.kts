@@ -22,6 +22,8 @@ dependencies {
     compile("com.fasterxml.jackson.core", "jackson-databind", jacksonVersion)
     compile("com.fasterxml.jackson.module", "jackson-module-kotlin", jacksonVersion)
     compile("org.jetbrains.kotlinx", "kotlinx-coroutines-core", coroutinesVersion)
+    compile("javax.inject", "javax.inject", "1")
+    compile("javax.enterprise", "cdi-api", "2.0.SP1")
 }
 
 application {

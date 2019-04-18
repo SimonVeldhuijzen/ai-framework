@@ -1,8 +1,8 @@
-package ai.framework.game
+package ai.framework.core.board
 
-import ai.framework.core.logger
+import ai.framework.core.helper.logger
 import ai.framework.entity.MoveResponse
-import ai.framework.entity.Player
+import ai.framework.server.game.Player
 import java.util.*
 
 class BoterKaasEierenBoard(val players: List<Player>): Board(listOf("row", "column")) {

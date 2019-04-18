@@ -1,9 +1,9 @@
-package ai.framework.game
+package ai.framework.core.board
 
-import ai.framework.core.logger
+import ai.framework.core.helper.logger
 import ai.framework.entity.MoveRequest
 import ai.framework.entity.MoveResponse
-import ai.framework.entity.Player
+import ai.framework.server.game.Player
 import java.util.*
 
 abstract class Board(val expectedKeys: List<String>, val optionalKeys: List<String> = LinkedList()) {
@@ -19,36 +19,29 @@ abstract class Board(val expectedKeys: List<String>, val optionalKeys: List<Stri
 
     fun generateRequest() : MoveRequest {
         if (requestUUID != null) {
-//            logger.warn("Game $uuid: Generating a second request for player ${playerToMove().uuid}")
             return MoveRequest(this, playerToMove(), expectedKeys, optionalKeys, requestUUID!!)
         }
 
-//        logger.info("Game $uuid: Generating request for player ${playerToMove().uuid}")
         val request = MoveRequest(this, playerToMove(), expectedKeys, optionalKeys)
         requestUUID = request.uuid
         return request
     }
 
     fun move(move: MoveResponse) {
-//        logger.info(move.move.toString())
 
         if (finished) {
-//            logger.warn("Game $uuid: Move denied; game finished")
             return
         }
 
         if (!isCorrectResponse(move)) {
-//            logger.warn("Game $uuid: Move denied; incorrect response")
             return
         }
 
         if (expectedKeysMissing(move) || !isValid(move)) {
-//            logger.warn("Game $uuid: Random move; incorrect move")
             randomMove()
             return
         }
 
-//        logger.info("Game $uuid: Moving for player ${move.player.uuid}")
         makeMove(move)
         requestUUID = null
 

@@ -1,6 +1,7 @@
 package ai.framework.entity
 
-import ai.framework.game.Board
+import ai.framework.core.board.Board
+import ai.framework.server.game.Player
 import java.util.*
 
 class MoveRequest(
