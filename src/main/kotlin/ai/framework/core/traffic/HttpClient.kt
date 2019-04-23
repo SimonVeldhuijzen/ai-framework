@@ -1,6 +1,8 @@
 package ai.framework.core.traffic
 
+import ai.framework.core.helper.logger
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.javalin.HttpResponseException
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -23,6 +25,23 @@ class HttpClient(val timeout: Int) {
     fun <T>get(url: String, clazz: Class<T> ): T {
         val result = get(url)
         return ObjectMapper().readValue(result, clazz)
+    }
+
+    fun <TReq, TRes>get(url: String, entity: TReq, clazz: Class<TRes>): TRes {
+        val json = ObjectMapper().writeValueAsString(entity)
+        val connection = makeConnection(url, "POST")
+        connection.doOutput = true
+        connection.setRequestProperty("Accept", "application/json")
+
+        val stream = connection.outputStream
+        stream.write(json.toByteArray())
+
+        call(connection, 200)
+
+        val reader = BufferedReader(InputStreamReader(connection.inputStream))
+        val result = reader.readLines().joinToString("\n")
+        connection.disconnect()
+        return jacksonObjectMapper().readerFor(clazz).readValue(result)
     }
 
     fun post(url: String) {
@@ -65,6 +84,7 @@ class HttpClient(val timeout: Int) {
         val connection = target.openConnection() as HttpURLConnection
         connection.requestMethod = method
         connection.readTimeout = timeout
+        connection.connectTimeout = 500
         return connection
     }
 

@@ -1,64 +1,46 @@
 package ai.framework.server.game
 
-import ai.framework.core.helper.logger
-import ai.framework.entity.MoveRequest
-import ai.framework.entity.MoveResponse
+import ai.framework.core.board.BoterKaasEierenBoard
 import ai.framework.core.constant.GameState
-import ai.framework.core.board.Board
-import kotlinx.coroutines.*
+import ai.framework.core.constant.BoardType
 
-class Game(val board: Board) {
-    companion object {
-        private val logger by logger()
-    }
+class Game(type: BoardType, players: List<Player>) {
+    private val board = create(type, players)
+    private val playerMapping = board.players.zip(players).toMap()
 
     var status: GameState = GameState.NOT_INITIALIZED; private set
 
-    fun play(msPerMove: Long) {
+    fun play() {
         status = GameState.INITIALIZED
 
-        while (!board.finished) {
-            logger.info("Generating request for ${board.playerToMove().user.name}")
-            val request = board.generateRequest()
+        while (!board.finished()) {
+            val request = board.requestMove()
 
             status = GameState.WAITING_FOR_PLAYER
-            logger.info("Asking for move for ${board.playerToMove().user.name}")
-            val move = runBlocking { move(request, msPerMove) }
+            val move = playerMapping[board.playerToMove]!!.makeMove(request)
 
             status = GameState.CALCULATING
             if (move == null) {
-                logger.info("Making random move for ${board.playerToMove().user.name}")
-                board.randomMove()
+                board.makeRandomMove()
             } else {
-                logger.info("Making move for ${board.playerToMove().user.name}")
-                board.move(move)
+                board.makeMove(move)
             }
         }
 
         status = GameState.FINISHED
     }
 
-    private suspend fun move(request: MoveRequest, msPerMove: Long): MoveResponse? {
-        var move: MoveResponse? = null
-
-        val job = GlobalScope.launch {
-            move = request.player.makeMove(request, msPerMove)
+    fun winner(): Player? {
+        return if (board.winner == null) {
+            null
+        } else {
+            playerMapping[board.winner!!]
         }
+    }
 
-        val waitTill = System.currentTimeMillis() + msPerMove
-        while (System.currentTimeMillis() < waitTill) {
-            delay(10)
-            if (move != null) {
-                return move
-            }
+    private fun create(type: BoardType, players: List<Player>): BoterKaasEierenBoard {
+        return when (type) {
+            BoardType.BOTER_KAAS_EIEREN -> BoterKaasEierenBoard(players.size)
         }
-
-        if (move != null) {
-            return move
-        }
-
-        job.cancel()
-        logger.info("timeout")
-        return null
     }
 }

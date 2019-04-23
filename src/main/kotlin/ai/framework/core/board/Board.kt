@@ -1,75 +1,44 @@
 package ai.framework.core.board
 
-import ai.framework.core.helper.logger
-import ai.framework.entity.MoveRequest
-import ai.framework.entity.MoveResponse
-import ai.framework.server.game.Player
-import java.util.*
+import ai.framework.core.constant.PlayerType
 
-abstract class Board(val expectedKeys: List<String>, val optionalKeys: List<String> = LinkedList()) {
-    companion object {
-        private val logger by logger()
-    }
+abstract class Board(val playerCount: Int) {
+    private var lastMoveRequest: BoterKaasEierenMove? = null
 
-    private var requestUUID: UUID? = null
+    val players: List<PlayerType> = IntRange(1, playerCount).map { PlayerType.parse(it) }
+    var winner: PlayerType? = null; private set
+    var playerToMove = PlayerType.PLAYER_ONE; protected set
 
-    var uuid: UUID = UUID.randomUUID(); private set
-    var finished = false; private set
-    var winner: Player? = null; private set
+    fun finished() = winner != null
 
-    fun generateRequest() : MoveRequest {
-        if (requestUUID != null) {
-            return MoveRequest(this, playerToMove(), expectedKeys, optionalKeys, requestUUID!!)
+    fun requestMove(): BoterKaasEierenMove {
+        if (lastMoveRequest == null) {
+            lastMoveRequest = createRequest()
         }
 
-        val request = MoveRequest(this, playerToMove(), expectedKeys, optionalKeys)
-        requestUUID = request.uuid
-        return request
+        return lastMoveRequest!!
     }
 
-    fun move(move: MoveResponse) {
-
-        if (finished) {
+    fun makeMove(move: BoterKaasEierenMove) {
+        if (winner != null) {
             return
         }
 
-        if (!isCorrectResponse(move)) {
-            return
+        if (isValidMove(move)) {
+            move(move)
+        } else {
+            makeRandomMove()
         }
 
-        if (expectedKeysMissing(move) || !isValid(move)) {
-            randomMove()
-            return
-        }
-
-        makeMove(move)
-        requestUUID = null
-
-        if (gameFinished()) {
-            winner = determineWinner()
-            finished = true
-            logger.info("Game $uuid: Finished. Winner: ${winner?.uuid}")
-        }
+        winner = determineWinner()
+        lastMoveRequest = null
     }
 
-    fun copy(): Board {
-        val board = makeCopy()
-        board.requestUUID = requestUUID
-        board.uuid = uuid
-        board.finished = finished
-        board.winner = winner
-        return board
-    }
+    private fun isValidMove(move: BoterKaasEierenMove) = lastMoveRequest != null && move.uuid == lastMoveRequest!!.uuid && isValid(move)
 
-    private fun expectedKeysMissing(response: MoveResponse): Boolean = !response.move.keys.containsAll(expectedKeys)
-
-    private fun isCorrectResponse(response: MoveResponse): Boolean = response.uuid == requestUUID && response.boardUuid == uuid && response.player.uuid == playerToMove().uuid
-
-    abstract fun playerToMove(): Player
-    abstract fun isValid(move: MoveResponse): Boolean
-    abstract fun determineWinner(): Player?
-    abstract fun gameFinished(): Boolean
-    abstract fun randomMove()
-    protected abstract fun makeMove(move: MoveResponse)
-    protected abstract fun makeCopy(): Board
+    abstract fun isValid(move: BoterKaasEierenMove): Boolean
+    abstract fun makeRandomMove()
+    protected abstract fun createRequest(): BoterKaasEierenMove
+    protected abstract fun determineWinner(): PlayerType?
+    protected abstract fun move(move: BoterKaasEierenMove)
 }

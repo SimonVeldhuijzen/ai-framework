@@ -1,9 +1,10 @@
-package ai.framework.server.controller.server
+package ai.framework.server.controller
 
 import ai.framework.core.constant.GameState
 import ai.framework.core.helper.cleanStringBody
 import ai.framework.core.helper.logger
 import ai.framework.core.entity.Tournament
+import ai.framework.server.Dispatcher
 import ai.framework.server.repository.TournamentRepository
 import ai.framework.server.repository.UserRepository
 import io.javalin.BadRequestResponse
@@ -106,6 +107,6 @@ class TournamentController: CrudHandler {
             throw BadRequestResponse("Key not valid")
         }
 
-        tournament.start()
+        Dispatcher.add { tournament.start() }
     }
 }

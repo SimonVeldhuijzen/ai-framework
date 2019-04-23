@@ -1,9 +1,14 @@
 package ai.framework
 
 import ai.framework.client.controller.PlayerController
-import ai.framework.server.controller.server.TournamentController
-import ai.framework.server.controller.server.UserController
+import ai.framework.core.constant.BoardType
+import ai.framework.core.entity.Tournament
+import ai.framework.core.entity.User
+import ai.framework.core.helper.logger
+import ai.framework.server.controller.TournamentController
+import ai.framework.server.controller.UserController
 import ai.framework.core.test.TestServer
+import ai.framework.core.traffic.HttpClient
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.crud
 
@@ -16,23 +21,27 @@ fun main(args: Array<String>) {
         return
     }
 
-    if (args[0] == "server") {
-        val javalin = Javalin.create()
+    when {
+        args[0] == "server" -> {
+            val javalin = Javalin.create()
 
-        generalSettings(javalin, 8080)
-        addRestServerApis(javalin)
+            generalSettings(javalin, 8080)
+            addRestServerApis(javalin)
 
-        javalin.start()
-    } else if (args[0] == "testserver") {
-        val tester = TestServer()
-        tester.test()
-    } else if (args[0] == "client") {
-        val javalin = Javalin.create()
+            javalin.start()
+        }
+        args[0] == "testServer" -> {
+            val tester = TestServer()
+            tester.test()
+        }
+        args[0] == "client" -> {
+            val javalin = Javalin.create()
 
-        generalSettings(javalin, 8081)
-        addRestClientApis(javalin)
+            generalSettings(javalin, 8081)
+            addRestClientApis(javalin)
 
-        javalin.start()
+            javalin.start()
+        }
     }
 }
 
@@ -68,8 +77,18 @@ private fun addRestServerApis(javalin: Javalin) {
 
 private fun addRestClientApis(javalin: Javalin) {
     javalin.apply {
-        get("move?player=:uuid&timeout=:timeout") {ctx ->
+        post("move") {ctx ->
             playerController.move(ctx)
+        }
+
+        get("test") {ctx ->
+            val client = HttpClient(5000)
+            client.post("http://localhost:8080/tournaments", Tournament("tournament", BoardType.BOTER_KAAS_EIEREN, 50, 2000, "key"))
+            client.post("http://localhost:8080/users", User("user1", "key1", "http://localhost:8081", "creds1"))
+            client.post("http://localhost:8080/users", User("user2", "key2", "http://localhost:8081", "creds2"))
+            client.post("http://localhost:8080/tournaments/tournament/join/user1", "key1")
+            client.post("http://localhost:8080/tournaments/tournament/join/user2", "key2")
+            client.post("http://localhost:8080/tournaments/tournament/start", "key")
         }
     }
 }

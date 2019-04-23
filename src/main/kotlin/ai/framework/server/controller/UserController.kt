@@ -1,4 +1,4 @@
-package ai.framework.server.controller.server
+package ai.framework.server.controller
 
 import ai.framework.core.helper.cleanStringBody
 import ai.framework.core.helper.logger

@@ -40,12 +40,12 @@ class TestServer {
 
         getUsers(2)
 
-        val tournament1 = Tournament("name1", BoardType.BOTER_KAAS_EIEREN, "key1")
-        val tournament2 = Tournament("name2", BoardType.BOTER_KAAS_EIEREN, "key2")
-        val tournament3 = Tournament("name3", BoardType.BOTER_KAAS_EIEREN, "key3")
+        val tournament1 = Tournament("name1", BoardType.BOTER_KAAS_EIEREN, 100, 1000, "key1")
+        val tournament2 = Tournament("name2", BoardType.BOTER_KAAS_EIEREN, 100, 1000, "key2")
+        val tournament3 = Tournament("name3", BoardType.BOTER_KAAS_EIEREN, 100, 1000, "key3")
 
-        postTournament(Tournament("name", BoardType.BOTER_KAAS_EIEREN, ""), false)
-        postTournament(Tournament("", BoardType.BOTER_KAAS_EIEREN, "key"), false)
+        postTournament(Tournament("name", BoardType.BOTER_KAAS_EIEREN, 100, 1000, ""), false)
+        postTournament(Tournament("", BoardType.BOTER_KAAS_EIEREN, 100, 1000, "key"), false)
         postTournament(tournament1, true)
         postTournament(tournament2, true)
         postTournament(tournament3, true)
@@ -81,7 +81,7 @@ class TestServer {
         getTournament(tournament1.name, 2)
         getTournament(tournament2.name, 0)
 
-        startTournament(Tournament("wrong", BoardType.BOTER_KAAS_EIEREN, "something"), false)
+        startTournament(Tournament("wrong", BoardType.BOTER_KAAS_EIEREN, 100, 1000, "something"), false)
         startTournament(tournament1.copy(key = "something"), false)
     }
 
