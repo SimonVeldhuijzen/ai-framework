@@ -16,10 +16,8 @@ class Game(type: BoardType, players: List<Player>) {
         status = GameState.INITIALIZED
 
         while (!board.finished()) {
-            val request = board.requestMove()
-
             status = GameState.WAITING_FOR_PLAYER
-            val move = playerMapping[board.playerToMove]!!.makeMove(request)
+            val move = playerMapping[board.playerToMove]!!.makeMove(board)
 
             status = GameState.CALCULATING
             if (move == null) {

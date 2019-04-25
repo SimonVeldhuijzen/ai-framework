@@ -1,5 +1,6 @@
 package ai.framework.client.players
 
+import ai.framework.core.board.Board
 import ai.framework.core.board.Move
 import ai.framework.core.constant.BoardType
 import kotlinx.coroutines.GlobalScope
@@ -11,21 +12,24 @@ import kotlin.collections.HashMap
 
 class PlayerHolder {
     companion object {
+
+        val availablePlayers: List<AiPlayer> = listOf(BoterKaasEierenRandomPlayer())
+
         private val players = HashMap<UUID, AiPlayer>()
 
-        fun makeMove(request: Move, playerUuid: UUID, msPerMove: Int): Move? {
+        fun makeMove(board: Board, playerUuid: UUID, msPerMove: Int): Move? {
             if (!players.containsKey(playerUuid)) {
-                players[playerUuid] = createPlayer(BoardType.BOTER_KAAS_EIEREN)
+                players[playerUuid] = createPlayer(board.type)
             }
 
-            return runBlocking { move(players[playerUuid]!!, request, msPerMove) }
+            return runBlocking { move(players[playerUuid]!!, board, msPerMove) }
         }
 
-        private suspend fun move(player: AiPlayer, request: Move, msPerMove: Int): Move? {
+        private suspend fun move(player: AiPlayer, board: Board, msPerMove: Int): Move? {
             var move: Move? = null
 
             val job = GlobalScope.launch {
-                move = player.move(request)
+                move = player.move(board)
             }
 
             val waitTill = System.currentTimeMillis() + msPerMove
@@ -45,9 +49,7 @@ class PlayerHolder {
         }
 
         private fun createPlayer(type: BoardType): AiPlayer {
-            return when (type) {
-                BoardType.BOTER_KAAS_EIEREN -> BoterKaasEierenRandomPlayer(type)
-            }
+            return availablePlayers.first { p -> p.type == type }.copy()
         }
     }
 }

@@ -1,8 +1,9 @@
 package ai.framework.core.board
 
+import ai.framework.core.constant.BoardType
 import ai.framework.core.constant.PlayerType
 
-class BoterKaasEierenBoard(playerCount: Int): Board(playerCount) {
+class BoterKaasEierenBoard(playerCount: Int): Board(playerCount, BoardType.BOTER_KAAS_EIEREN) {
     val state = Array(3) { Array(3) { PlayerType.NONE } }
 
     override fun move(move: Move) {
@@ -26,7 +27,7 @@ class BoterKaasEierenBoard(playerCount: Int): Board(playerCount) {
         TODO()
     }
 
-    override fun createRequest() = Move(this, mutableMapOf("row" to 0, "column" to 0))
+    override fun createMoveTemplate() = Move(mutableMapOf("row" to 0, "column" to 0))
 
     override fun determineWinner(): PlayerType? {
         if (finished()) {
