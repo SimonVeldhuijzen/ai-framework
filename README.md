@@ -1,5 +1,4 @@
 First time setup
-- install ngrok (https://ngrok.com/download)
 - create an account for ngrok
 - ./ngrok authtoken $authtoken
 
