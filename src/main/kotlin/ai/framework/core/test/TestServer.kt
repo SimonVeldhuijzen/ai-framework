@@ -12,7 +12,7 @@ class TestServer {
         private val logger by logger()
     }
 
-    private val client by lazy { HttpClient(2000) }
+    private val client by lazy { HttpClient(2000, "") }
     private val userUrl = "http://localhost:8080/users"
     private val tournamentUrl = "http://localhost:8080/tournaments"
 

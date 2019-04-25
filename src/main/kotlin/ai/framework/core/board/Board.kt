@@ -2,8 +2,16 @@ package ai.framework.core.board
 
 import ai.framework.core.constant.BoardType
 import ai.framework.core.constant.PlayerType
+import ai.framework.core.helper.maxPlayers
+import ai.framework.core.helper.minPlayers
 
 abstract class Board(val playerCount: Int, val type: BoardType) {
+    init {
+        if (playerCount !in minPlayers(type)..maxPlayers(type)) {
+            throw Exception("Invalid player count: $playerCount")
+        }
+    }
+
     val players: List<PlayerType> = IntRange(1, playerCount).map { PlayerType.parse(it) }
     var winner: PlayerType? = null; private set
     var playerToMove = PlayerType.PLAYER_ONE; protected set

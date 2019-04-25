@@ -9,7 +9,9 @@ import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
 
-class HttpClient(val timeout: Int) {
+class HttpClient(val timeout: Int, val credentials: String) {
+    private val authHeader = "Basic $credentials"
+
     fun get(url: String): String {
         val connection = makeConnection(url, "GET")
         connection.setRequestProperty("Accept", "application/json")
@@ -85,6 +87,9 @@ class HttpClient(val timeout: Int) {
         connection.requestMethod = method
         connection.readTimeout = timeout
         connection.connectTimeout = 500
+
+        connection.setRequestProperty ("Authorization", authHeader)
+
         return connection
     }
 

@@ -1,6 +1,5 @@
 package ai.framework.client.players
 
-import ai.framework.core.board.Board
 import ai.framework.core.board.BoterKaasEierenBoard
 import ai.framework.core.board.Move
 import ai.framework.core.constant.BoardType
@@ -8,17 +7,13 @@ import ai.framework.core.constant.PlayerType
 import java.util.*
 import ai.framework.core.helper.logger
 
-class BoterKaasEierenRandomPlayer: AiPlayer(BoardType.BOTER_KAAS_EIEREN) {
+class BoterKaasEierenRandomPlayer: AiPlayer<BoterKaasEierenBoard>(BoardType.BOTER_KAAS_EIEREN) {
     companion object {
         private val logger by logger()
     }
 
-    override fun move(board: Board): Move {
-        if (board !is BoterKaasEierenBoard) {
-            throw Exception("")
-        }
-
-        logger.info("Received request for ${board.state}")
+    override fun move(board: BoterKaasEierenBoard): Move {
+//        logger.info("Received request for ${board.state}")
 
         val moves = LinkedList<Pair<Int, Int>>()
         for (row in 0..2) {
@@ -34,7 +29,7 @@ class BoterKaasEierenRandomPlayer: AiPlayer(BoardType.BOTER_KAAS_EIEREN) {
         result.params["row"] = move.first
         result.params["column"] = move.second
 
-        logger.info("Response: row = ${move.first}, column = ${move.second}")
+//        logger.info("Response: row = ${move.first}, column = ${move.second}")
 
         return result
     }

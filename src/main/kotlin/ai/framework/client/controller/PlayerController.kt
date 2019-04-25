@@ -14,9 +14,14 @@ class PlayerController {
         val uuid = UUID.fromString(ctx.queryParam("player"))
         val timeout = ctx.queryParam("timeout", "1")!!.toInt()
 
-        val response = PlayerHolder.makeMove(board, uuid, timeout)
-        if (response != null) {
-            ctx.json(response)
+        try {
+            val response = PlayerHolder.makeMove(board, uuid, timeout)
+            if (response != null) {
+                ctx.json(response)
+            }
+        } catch (e: Exception) {
+            ctx.status(500)
+            ctx.json(e)
         }
     }
 

@@ -2,6 +2,8 @@ package ai.framework.core.board
 
 import ai.framework.core.constant.BoardType
 import ai.framework.core.constant.PlayerType
+import java.util.*
+import kotlin.collections.ArrayList
 
 class BoterKaasEierenBoard(playerCount: Int): Board(playerCount, BoardType.BOTER_KAAS_EIEREN) {
     val state = Array(3) { Array(3) { PlayerType.NONE } }
@@ -24,7 +26,21 @@ class BoterKaasEierenBoard(playerCount: Int): Board(playerCount, BoardType.BOTER
     }
 
     override fun makeRandomMove() {
-        TODO()
+        val moves = LinkedList<Pair<Int, Int>>()
+        for (row in 0..2) {
+            for (column in 0..2) {
+                if (state[row][column] == PlayerType.NONE) {
+                    moves.add(row to column)
+                }
+            }
+        }
+
+        val move = moves[Random().nextInt(moves.size)]
+        val result = createMoveTemplate()
+        result.params["row"] = move.first
+        result.params["column"] = move.second
+
+        makeMove(result)
     }
 
     override fun createMoveTemplate() = Move(mutableMapOf("row" to 0, "column" to 0))

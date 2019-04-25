@@ -7,29 +7,33 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import java.util.*
 import kotlin.collections.HashMap
+import ai.framework.core.helper.logger
+import java.util.UUID
 
 class PlayerHolder {
     companion object {
 
-        val availablePlayers: List<AiPlayer> = listOf(BoterKaasEierenRandomPlayer())
+        val logger by logger()
 
-        private val players = HashMap<UUID, AiPlayer>()
+        val availablePlayers: MutableList<AiPlayer<*>> = mutableListOf(BoterKaasEierenRandomPlayer())
 
-        fun makeMove(board: Board, playerUuid: UUID, msPerMove: Int): Move? {
+        private val players = HashMap<UUID, AiPlayer<*>>()
+
+        fun<T: Board> makeMove(board: T, playerUuid: UUID, msPerMove: Int): Move? {
             if (!players.containsKey(playerUuid)) {
                 players[playerUuid] = createPlayer(board.type)
             }
 
-            return runBlocking { move(players[playerUuid]!!, board, msPerMove) }
+            val player = players[playerUuid]!! as AiPlayer<T>
+            return runBlocking { move(player, board, msPerMove) }
         }
 
-        private suspend fun move(player: AiPlayer, board: Board, msPerMove: Int): Move? {
+        private suspend fun<T: Board> move(player: AiPlayer<T>, board: T, msPerMove: Int): Move? {
             var move: Move? = null
 
             val job = GlobalScope.launch {
-                move = player.move(board)
+                move = player.makeMove(board)
             }
 
             val waitTill = System.currentTimeMillis() + msPerMove
@@ -45,10 +49,13 @@ class PlayerHolder {
             }
 
             job.cancel()
+
+            logger.info("Timeout. Returning null")
+
             return null
         }
 
-        private fun createPlayer(type: BoardType): AiPlayer {
+        private fun createPlayer(type: BoardType): AiPlayer<*> {
             return availablePlayers.first { p -> p.type == type }.copy()
         }
     }

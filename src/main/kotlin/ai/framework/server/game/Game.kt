@@ -5,6 +5,7 @@ import ai.framework.core.board.BoterKaasEierenBoard
 import ai.framework.core.board.Move
 import ai.framework.core.constant.GameState
 import ai.framework.core.constant.BoardType
+import ai.framework.core.helper.create
 
 class Game(type: BoardType, players: List<Player>) {
     private val board = create(type, players)
@@ -35,12 +36,6 @@ class Game(type: BoardType, players: List<Player>) {
             null
         } else {
             playerMapping[board.winner!!]
-        }
-    }
-
-    private fun create(type: BoardType, players: List<Player>): Board {
-        return when (type) {
-            BoardType.BOTER_KAAS_EIEREN -> BoterKaasEierenBoard(players.size)
         }
     }
 }
