@@ -1,0 +1,242 @@
+<html lang="en">
+<head>
+    <title>Frontend</title>
+</head>
+    <body>
+        <h3>Tournaments</h3>
+        <div id="tournaments" class="data-holder"></div>
+        <form>
+            <input id="tournament-name-input" type="text" placeholder="Name" />
+            <select id="tournament-type-input" class="input-dropdown"/>
+            <input id="tournament-repetitions-input" type="number" placeholder="Repetitions" />
+            <input id="tournament-timeout-input" type="number" placeholder="Timeout" />
+            <input id="tournament-key-input" type="text" placeholder="Key" />
+            <input type="button"  value="Create" onclick="createTournament()" />
+        </form>
+
+        <hr/>
+
+        <h3>Users</h3>
+        <div id="users" class="data-holder"></div>
+        <form>
+            <input id="user-name-input" type="text" placeholder="Name" />
+            <input id="user-sharedKey-input" type="text" placeholder="Shared Key" />
+            <input id="user-endpoint-input" type="text" placeholder="Endpoint" />
+            <input id="user-endpointCredentials-input" type="text" placeholder="Endpoint Credentials" />
+            <input type="button" value="Create" onclick="createUser()" />
+        </form>
+
+        <div id="tournament-info"></div>
+
+        <script>
+          window.onload = initialize
+
+          function initialize() {
+            gatherTournamentTypes()
+            gatherData()
+          }
+
+          function createTournament() {
+            var typeElement = document.getElementById("tournament-type-input")
+
+            var name = document.getElementById("tournament-name-input").value
+            var type = typeElement.options[typeElement.selectedIndex].value
+            var repetitions = document.getElementById("tournament-repetitions-input").value
+            var timeout = document.getElementById("tournament-timeout-input").value
+            var key = document.getElementById("tournament-key-input").value
+
+            var tournament = {name: name, type: type, repetitions: repetitions, timeout: timeout, key: key}
+
+            post("http://localhost:8080/tournaments", function (body) {
+              gatherData()
+            }, tournament)
+          }
+
+          function createUser() {
+            var name = document.getElementById("user-name-input").value
+            var sharedKey = document.getElementById("user-sharedKey-input").value
+            var endpoint = document.getElementById("user-endpoint-input").value
+            var endpointCredentials = document.getElementById("user-endpointCredentials-input").value
+
+            var user = {name: name, sharedKey: sharedKey, endpoint: endpoint, endpointCredentials: endpointCredentials}
+
+            post("http://localhost:8080/users", function (body) {
+              gatherData()
+            }, user)
+          }
+
+          function gatherTournamentTypes() {
+            get("http://localhost:8080/tournament_types", function (body) {
+              var content = ""
+              var types = JSON.parse(body)
+
+              for(var i = 0; i < types.length; i++) {
+                content += "<option value=\"" + types[i] + "\">" + types[i] + "</option>"
+              }
+
+              document.getElementById("tournament-type-input").innerHTML = content
+            })
+          }
+
+          function gatherData() {
+            get("http://localhost:8080/tournaments", function (body) {
+              var content = "<table><tr><th>Name</th><th>Type</th><th>Players</th><th>Status</th><th/></tr>"
+
+              var tournaments = JSON.parse(body)
+              for(var i = 0; i < tournaments.length; i++) {
+                content += "<tr>"
+                var users = "<td>"
+
+                for (var j = 0; j < tournaments[i].users.length; j++) {
+                  users += tournaments[i].users[j].name + " "
+                }
+
+                users += "</td>"
+
+                var name = "<td>" + tournaments[i].name + "</td>"
+                var type = "<td>" + tournaments[i].type + "</td>"
+                var status = "<td>" + tournaments[i].state + "</td>"
+                var deleteButton = "<td><input type='button' value='delete' onclick='deleteTournament(\"" + tournaments[i].name + "\")'>"
+                var joinButton = "<input type='button' value='join' onclick='joinTournament(\"" + tournaments[i].name + "\")'>"
+                var startButton = "<input type='button' value='start' onclick='startTournament(\"" + tournaments[i].name + "\")'>"
+                var infoButton = "<input type='button' value='info' onclick='infoTournament(\"" + tournaments[i].name + "\")'></td>"
+
+                content += name + type+ users + status + deleteButton + joinButton + startButton + infoButton
+                content += "</tr>"
+              }
+
+              content += "</table>"
+
+              if (tournaments.length === 0) {
+                content = "No tournaments yet"
+              }
+
+              document.getElementById("tournaments").innerHTML = content
+            })
+
+            get("http://localhost:8080/users", function (body) {
+              var content = "<table><tr><th>Name</th><th/></tr>"
+
+              var users = JSON.parse(body)
+              for(var i = 0; i < users.length; i++) {
+                content += "<tr><td>" + users[i].name + "</td><td><input type='button' value='delete' onclick='deleteUser(\"" + users[i].name + "\")'></td></tr>"
+              }
+
+              content += "</table>"
+
+              if (users.length === 0) {
+                content = "No users yet"
+              }
+
+              document.getElementById("users").innerHTML = content
+            })
+          }
+
+          function infoTournament(name) {
+            get("http://localhost:8080/tournaments/" + name, function (body) {
+              var tournament = JSON.parse(body)
+              var content = "<h3>Tournament info: " + tournament.name + "</h3>"
+              content += "Repetitions: " + tournament.repetitions + "; timeout: " + tournament.timeout
+
+              content += "<table><tr><th>Fixture</th><th>Result</th></tr>"
+              for (var i = 0; i < tournament.fixtures.length; i++) {
+                content += "<tr><td>" + tournament.fixtures[i].fixtureName + "</td><td>" + tournament.fixtures[i].winnerName + "</td>"
+              }
+
+              content += "</table"
+
+              document.getElementById("tournament-info").innerHTML = content
+            })
+          }
+
+          function deleteTournament(name) {
+            var key = prompt("Key")
+
+            del("http://localhost:8080/tournaments/" + name, function (body) {
+              gatherData()
+            }, key)
+          }
+
+          function startTournament(name) {
+            var key = prompt("Key")
+
+            post("http://localhost:8080/tournaments/" + name + "/start", function (body) {
+              gatherData()
+            }, key)
+          }
+
+          function deleteUser(name) {
+            var key = prompt("Shared key")
+
+            del("http://localhost:8080/users/" + name, function (body) {
+              gatherData()
+            }, key)
+          }
+
+          function joinTournament(name) {
+            var user = prompt("Username")
+            var key = prompt("Key")
+
+            post("http://localhost:8080/tournaments/" + name + "/join/" + user, function (body) {
+              gatherData()
+            }, key)
+          }
+
+          function post(url, callback, body) {
+            call("POST", 201, url, callback, body)
+          }
+
+          function get(url, callback) {
+            call("GET", 200, url,  callback, null)
+          }
+
+          function del(url, callback, body) {
+            call("DELETE", 200, url, callback, body)
+          }
+
+          function call(method, status, url, callback, body) {
+            var req = new XMLHttpRequest()
+
+            req.onreadystatechange = function () {
+              if (this.readyState !== 4) return;
+
+              if (this.status === status) {
+                callback(this.responseText)
+              }
+            };
+
+            req.open(method, url, true);
+            if (body === null) {
+              req.send();
+            } else {
+              req.send(JSON.stringify(body))
+            }
+          }
+        </script>
+
+        <style>
+            .data-holder {
+                margin-bottom: 16px;
+            }
+
+            .input-dropdown, button {
+                margin-right: 4px;
+            }
+
+            table {
+                width: 80%;
+                background-color: lightgray;
+            }
+
+            th {
+                height: 50px;
+            }
+
+            th, td {
+                text-align: left;
+                border-bottom: 1px solid #ddd;
+                width: 20%;
+            }
+        </style>
+    </body>
+</html>

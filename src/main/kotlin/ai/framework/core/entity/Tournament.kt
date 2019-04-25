@@ -10,6 +10,7 @@ import ai.framework.core.traffic.Dispatcher
 import ai.framework.server.game.Player
 import ai.framework.server.game.Game
 import com.fasterxml.jackson.annotation.JsonProperty
+import kotlinx.coroutines.delay
 import java.util.*
 
 data class Tournament(
@@ -24,13 +25,16 @@ data class Tournament(
 
     val users = LinkedList<User>()
     var state = GameState.INITIALIZED; private set
+    val fixtures = LinkedList<Fixture>()
 
     fun start() {
         if (state != GameState.INITIALIZED) {
             return
         }
 
-        val fixtures = createFixtures()
+        state = GameState.CALCULATING
+
+        fixtures.addAll(createFixtures())
         for (fixture in fixtures) {
             logger.info(fixture.toString())
         }
@@ -39,10 +43,6 @@ data class Tournament(
         }
 
         logger.info("Created ${fixtures.size} fixtures. Waiting for them now")
-
-        Dispatcher.join()
-
-        state = GameState.FINISHED
     }
 
     fun createFixtures(): List<Fixture> {

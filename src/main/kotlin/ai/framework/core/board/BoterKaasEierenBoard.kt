@@ -6,6 +6,10 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 class BoterKaasEierenBoard(playerCount: Int): Board(playerCount, BoardType.BOTER_KAAS_EIEREN) {
+    override fun visualize(): String {
+        return state.joinToString("\n") { s -> s.map { s -> s.value }.joinToString(" | ") }
+    }
+
     val state = Array(3) { Array(3) { PlayerType.NONE } }
 
     override fun move(move: Move) {
@@ -16,7 +20,7 @@ class BoterKaasEierenBoard(playerCount: Int): Board(playerCount, BoardType.BOTER
     }
 
     override fun isValid(move: Move): Boolean {
-        return if (move.checkParam("row", Int::class) || move.checkParam("column", Int::class)) {
+        return if (move.checkParam("row", Int::class) && move.checkParam("column", Int::class)) {
             val row = move.getParam<Int>("row")
             val column = move.getParam<Int>("column")
             row in 0..2 && column in 0..2 && state[row][column] == PlayerType.NONE

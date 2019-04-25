@@ -10,6 +10,10 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 class HttpClient(val timeout: Int, val credentials: String) {
+    companion object {
+        val logger by logger()
+    }
+
     private val authHeader = "Basic $credentials"
 
     fun get(url: String): String {
@@ -94,7 +98,10 @@ class HttpClient(val timeout: Int, val credentials: String) {
     }
 
     private fun call(connection: HttpURLConnection, expectedStatus: Int) {
+//        val ms = System.currentTimeMillis()
         val status = connection.responseCode
+//        logger.info("Call took ${System.currentTimeMillis() - ms} ms")
+
         if (status != expectedStatus) {
             throw HttpResponseException(status, connection.responseMessage)
         }

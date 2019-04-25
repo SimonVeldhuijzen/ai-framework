@@ -38,4 +38,6 @@ class Game(type: BoardType, players: List<Player>) {
             playerMapping[board.winner!!]
         }
     }
+
+    fun visualize() = board.visualize()
 }

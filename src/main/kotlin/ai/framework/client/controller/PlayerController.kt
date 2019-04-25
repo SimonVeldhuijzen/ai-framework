@@ -3,6 +3,7 @@ package ai.framework.client.controller
 import ai.framework.client.players.PlayerHolder
 import ai.framework.core.board.Board
 import ai.framework.core.board.BoterKaasEierenBoard
+import ai.framework.core.board.VierOpEenRijBoard
 import ai.framework.core.constant.BoardType
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.javalin.Context
@@ -28,6 +29,7 @@ class PlayerController {
     private fun parseBody(ctx: Context): Board {
         return when (extractType(ctx.body())) {
             BoardType.BOTER_KAAS_EIEREN -> ctx.body<BoterKaasEierenBoard>()
+            BoardType.VIER_OP_EEN_RIJ -> ctx.body<VierOpEenRijBoard>()
         }
     }
 

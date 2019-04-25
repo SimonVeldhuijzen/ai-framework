@@ -13,7 +13,7 @@ abstract class Board(val playerCount: Int, val type: BoardType) {
     }
 
     val players: List<PlayerType> = IntRange(1, playerCount).map { PlayerType.parse(it) }
-    var winner: PlayerType? = null; private set
+    var winner: PlayerType? = null; protected set
     var playerToMove = PlayerType.PLAYER_ONE; protected set
 
     fun finished() = winner != null
@@ -35,6 +35,7 @@ abstract class Board(val playerCount: Int, val type: BoardType) {
     abstract fun isValid(move: Move): Boolean
     abstract fun makeRandomMove()
     abstract fun createMoveTemplate(): Move
+    abstract fun visualize(): String
     protected abstract fun determineWinner(): PlayerType?
     protected abstract fun move(move: Move)
 }

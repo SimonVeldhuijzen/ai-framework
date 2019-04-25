@@ -1,11 +1,13 @@
 package ai.framework.server.game
 
+import ai.framework.client.players.AiPlayer
 import ai.framework.core.board.Board
 import ai.framework.core.board.Move
 import ai.framework.core.entity.User
 import ai.framework.core.helper.logger
 import ai.framework.core.traffic.HttpClient
 import java.net.SocketTimeoutException
+import java.time.LocalDateTime
 import java.util.*
 
 class Player(val user: User, private val timeout: Int) {
