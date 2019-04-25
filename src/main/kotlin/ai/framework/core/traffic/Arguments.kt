@@ -2,7 +2,7 @@ package ai.framework.core.traffic
 
 class Arguments(private val args: Array<String>) {
     private val helpMessage = "First argument should be 'client' or 'server'.\n" +
-            "If 'client': also include '--credentials' or '-c', '--server-credentials' or '-C', '--endpoint' or '-e', '--server-endpoint' or '-E', '--name' or '-n', '--shared-key' or '-k'\n" +
+            "If 'client': also include '--credentials' or '-c', '--server-credentials' or '-C', '--endpoint' or '-e', '--server-endpoint' or '-E'\n" +
             "Optional: '--port' or '-p'"
 
     var isServer: Boolean = false
@@ -34,7 +34,7 @@ class Arguments(private val args: Array<String>) {
 
     private fun initializeClient() {
         isClient = true
-        val expectedKeys = mutableListOf("--credentials" to "-c", "--server-credentials" to "-C", "--endpoint" to "-e", "--server-endpoint" to "-E", "--name" to "-n", "--shared-key" to "-k")
+        val expectedKeys = mutableListOf("--credentials" to "-c", "--server-credentials" to "-C", "--endpoint" to "-e", "--server-endpoint" to "-E")
 
         for (i in 1 until args.size step 2) {
             if (args[i] == "--port" || args[i] == "-p") {
@@ -52,8 +52,6 @@ class Arguments(private val args: Array<String>) {
                 "--server-credentials" -> serverCredentials = args[i+1]
                 "--endpoint" -> endpoint = args[i+1]
                 "--server-endpoint" -> serverEndpoint = args[i+1]
-                "--name" -> name = args[i+1]
-                "--shared-key" -> sharedKey = args[i+1]
             }
 
             expectedKeys.remove(key)
@@ -62,6 +60,13 @@ class Arguments(private val args: Array<String>) {
         if (expectedKeys.any()) {
             error = "Not all requred keys given\n$helpMessage"
         }
+
+        if (credentials.count { c -> c == ':' } != 1 || credentials.startsWith(":") || credentials.endsWith(":")) {
+            error = "Invalid credentials"
+        }
+
+        name = credentials.substringBefore(':')
+        sharedKey = credentials.substringAfter(':')
     }
 
     private fun checkForPort() {
