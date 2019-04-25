@@ -1,6 +1,8 @@
 package ai.framework.server.game
 
+import ai.framework.core.board.Board
 import ai.framework.core.board.BoterKaasEierenBoard
+import ai.framework.core.board.Move
 import ai.framework.core.constant.GameState
 import ai.framework.core.constant.BoardType
 
@@ -38,7 +40,7 @@ class Game(type: BoardType, players: List<Player>) {
         }
     }
 
-    private fun create(type: BoardType, players: List<Player>): BoterKaasEierenBoard {
+    private fun create(type: BoardType, players: List<Player>): Board {
         return when (type) {
             BoardType.BOTER_KAAS_EIEREN -> BoterKaasEierenBoard(players.size)
         }
