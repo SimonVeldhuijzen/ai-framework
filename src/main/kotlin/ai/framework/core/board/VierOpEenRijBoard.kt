@@ -12,7 +12,7 @@ class VierOpEenRijBoard(playerCount: Int, val width: Int, val height: Int): Boar
 
     val state = Array(width) { Array(height) { PlayerType.NONE } }
 
-    fun copy() {
+    fun copy(): VierOpEenRijBoard {
         val copy = VierOpEenRijBoard(playerCount, width, height)
         copy.winner = winner
         copy.playerToMove = playerToMove
@@ -21,6 +21,8 @@ class VierOpEenRijBoard(playerCount: Int, val width: Int, val height: Int): Boar
                 copy.state[i][j] = state[i][j]
             }
         }
+
+        return copy
     }
 
     override fun isValid(move: Move): Boolean {

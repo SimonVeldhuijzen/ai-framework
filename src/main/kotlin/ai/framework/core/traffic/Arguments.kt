@@ -2,7 +2,7 @@ package ai.framework.core.traffic
 
 class Arguments(private val args: Array<String>) {
     private val helpMessage = "First argument should be 'client' or 'server'.\n" +
-            "If 'client': also include '--credentials' or '-c', '--server-credentials' or '-C', '--endpoint' or '-e', '--server-endpoint' or '-E'\n" +
+            "If 'client': also include '--credentials' or '-c', '--server-credentials' or '-C', '--endpoint' or '-e', '--server-endpoint' or '-E', '--name' or '-n', '--shared-key' or '-k'\n" +
             "Optional: '--port' or '-p'"
 
     var isServer: Boolean = false
@@ -12,6 +12,8 @@ class Arguments(private val args: Array<String>) {
     var serverCredentials = ""
     var serverEndpoint = ""
     var endpoint = ""
+    var name = ""
+    var sharedKey = ""
 
     var port: Int? = null
 
@@ -32,7 +34,7 @@ class Arguments(private val args: Array<String>) {
 
     private fun initializeClient() {
         isClient = true
-        val expectedKeys = listOf("--credentials" to "-c", "--server-credentials" to "-C", "--endpoint" to "-e", "--server-endpoint" to "-E")
+        val expectedKeys = mutableListOf("--credentials" to "-c", "--server-credentials" to "-C", "--endpoint" to "-e", "--server-endpoint" to "-E", "--name" to "-n", "--shared-key" to "-k")
 
         for (i in 1 until args.size step 2) {
             if (args[i] == "--port" || args[i] == "-p") {
@@ -50,7 +52,15 @@ class Arguments(private val args: Array<String>) {
                 "--server-credentials" -> serverCredentials = args[i+1]
                 "--endpoint" -> endpoint = args[i+1]
                 "--server-endpoint" -> serverEndpoint = args[i+1]
+                "--name" -> name = args[i+1]
+                "--shared-key" -> sharedKey = args[i+1]
             }
+
+            expectedKeys.remove(key)
+        }
+
+        if (expectedKeys.any()) {
+            error = "Not all requred keys given\n$helpMessage"
         }
     }
 

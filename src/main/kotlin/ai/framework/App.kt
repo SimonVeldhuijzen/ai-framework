@@ -91,20 +91,14 @@ private fun addRestClientApis(javalin: Javalin) {
             playerController.move(ctx)
         }
 
-        get("test") {ctx ->
+        post("tournament/:name/join") {ctx ->
             val client = HttpClient(5000, Base64.getEncoder().encodeToString(arguments.serverCredentials.toByteArray()))
-            client.post("${arguments.serverEndpoint}/tournaments", Tournament("tournament", BoardType.BOTER_KAAS_EIEREN, 50, 2000, "key"))
-            client.post("${arguments.serverEndpoint}/users", User("user1", "key1", arguments.endpoint, arguments.credentials))
-            client.post("${arguments.serverEndpoint}/users", User("user2", "key2", arguments.endpoint, arguments.credentials))
-            client.post("${arguments.serverEndpoint}/users", User("user3", "key3", arguments.endpoint, arguments.credentials))
-            client.post("${arguments.serverEndpoint}/users", User("user4", "key4", arguments.endpoint, arguments.credentials))
-            client.post("${arguments.serverEndpoint}/users", User("user5", "key5", arguments.endpoint, arguments.credentials))
-            client.post("${arguments.serverEndpoint}/tournaments/tournament/join/user1", "key1")
-            client.post("${arguments.serverEndpoint}/tournaments/tournament/join/user2", "key2")
-            client.post("${arguments.serverEndpoint}/tournaments/tournament/join/user3", "key3")
-            client.post("${arguments.serverEndpoint}/tournaments/tournament/join/user4", "key4")
-            client.post("${arguments.serverEndpoint}/tournaments/tournament/join/user5", "key5")
-            client.post("${arguments.serverEndpoint}/tournaments/tournament/start", "key")
+            client.post("${arguments.serverEndpoint}/tournaments/${ctx.pathParam("name")}/join/${arguments.name}", arguments.sharedKey)
+        }
+
+        post("register") {
+            val client = HttpClient(5000, Base64.getEncoder().encodeToString(arguments.serverCredentials.toByteArray()))
+            client.post("${arguments.serverEndpoint}/users", User(arguments.name, arguments.sharedKey, arguments.endpoint, arguments.credentials))
         }
     }
 }
