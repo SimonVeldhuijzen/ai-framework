@@ -16,6 +16,8 @@ class TournamentRepository: Repository() {
     fun create(tournament: Tournament): Tournament {
         throwIfEmpty(tournament.name, "name")
         throwIfEmpty(tournament.key, "key")
+        throwIfOutOfBounds(tournament.repetitions, "repetitions", 1)
+        throwIfOutOfBounds(tournament.timeout, "timeout", 500)
 
         if (Database.tournaments.find { t -> t.name == tournament.name } != null) {
             throw ConflictResponse("Tournament '${tournament.name}' already exists")
