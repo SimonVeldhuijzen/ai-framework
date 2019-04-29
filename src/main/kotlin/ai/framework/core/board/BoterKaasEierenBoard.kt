@@ -7,7 +7,29 @@ import kotlin.collections.ArrayList
 
 class BoterKaasEierenBoard(playerCount: Int): Board(playerCount, BoardType.BOTER_KAAS_EIEREN) {
     override fun visualize(): String {
-        return state.joinToString("\n") { s -> s.map { s -> s.value }.joinToString(" | ") }
+        val h = "\u2500\u2500\u2500"
+        val hc = "\u253C"
+        val ho = "\u2551"
+        val vo = "\u2550"
+        var result = "\u2554"
+        repeat(3 * 3 + 2) { result += vo}
+        result += "\u2557\n"
+
+        result += state.map { r ->
+            "$ho " + r.map { c ->
+                when(c) {
+                    PlayerType.NONE -> " "
+                    PlayerType.PLAYER_ONE -> "x"
+                    PlayerType.PLAYER_TWO -> "o"
+                    else -> "?"
+                }
+            }.joinToString(" \u2502 ") + " $ho"
+        }.joinToString( "\n$ho$h$hc$h$hc$h$ho\n" )
+
+        result += "\n\u255A"
+        repeat(3 * 3 + 2) { result += vo}
+        result += "\u255D\n"
+        return result
     }
 
     val state = Array(3) { Array(3) { PlayerType.NONE } }
