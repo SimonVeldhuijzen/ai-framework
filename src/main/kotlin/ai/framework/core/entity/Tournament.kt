@@ -2,15 +2,10 @@ package ai.framework.core.entity
 
 import ai.framework.core.constant.BoardType
 import ai.framework.core.constant.GameState
-import ai.framework.core.helper.create
 import ai.framework.core.helper.logger
 import ai.framework.core.helper.maxPlayers
 import ai.framework.core.helper.minPlayers
-import ai.framework.core.traffic.Dispatcher
-import ai.framework.server.game.Player
-import ai.framework.server.game.Game
 import com.fasterxml.jackson.annotation.JsonProperty
-import kotlinx.coroutines.delay
 import java.util.*
 
 data class Tournament(
@@ -89,8 +84,10 @@ data class Tournament(
 
             done.addAll(progress)
             done
+        } else if (users.size <= max) {
+            return listOf(Fixture(mutableListOf(), 0, users, type, repetitions, timeout))
         } else {
-            LinkedList()
+            return listOf()
         }
     }
 }

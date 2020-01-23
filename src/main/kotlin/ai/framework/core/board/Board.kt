@@ -38,4 +38,5 @@ abstract class Board(val playerCount: Int, val type: BoardType) {
     abstract fun visualize(): String
     protected abstract fun determineWinner(): PlayerType?
     protected abstract fun move(move: Move)
+    open fun publicBoard() = this
 }

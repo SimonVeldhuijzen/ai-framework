@@ -16,7 +16,7 @@ class PlayerHolder {
 
         val logger by logger()
 
-        val availablePlayers: MutableList<AiPlayer<*>> = mutableListOf(BoterKaasEierenRandomPlayer(), VierOpEenRijRandomPlayer())
+        val availablePlayers: MutableList<AiPlayer<*>> = mutableListOf(BoterKaasEierenRandomPlayer(), VierOpEenRijRandomPlayer(), PokerPlayer())
 
         private val players = HashMap<UUID, AiPlayer<*>>()
 
